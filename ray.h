@@ -13,15 +13,17 @@ class Ray : public Personaje{
 	int hongosbiolumicentesrecolectados;
     public:
 	Ray();
-	void Caminar(float dx,float dy);
+	void mover(float dx,float dy) override;
 	void saltar();
-	void golpear(Personaje* enemigo);
+	void atacar(Personaje* objetivo) override;
 	void golpedeLuz(Personaje* enemigo);
 	void supergolpedeLuz(Personaje* enemigo);
 	void recolectarsemilla();
 	void recolectarHongo();
 	void setPosition(float x,float y);
-	sf::FloatRect getBounds();
+	sf::FloatRect getBounds()  override;
+	sf::Vector2f getPosition();
+	void setScale(float scaleX, float scaleY);
 	virtual void dibujar(sf::RenderWindow& ventana);
 };
 #endif

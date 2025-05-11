@@ -12,10 +12,11 @@ class Hormigas : public Personaje{
     bool infectadas;
     public:
 	Hormigas(bool infectadas);
-	void ataque(Personaje* objetivo);
+	void atacar(Personaje* objetivo) override;
     virtual void dibujar(sf::RenderWindow& ventana);
 	bool getInfectadas();
 	void setPosition(float x,float y);
-	sf::FloatRect getBounds();
+	sf::FloatRect getBounds() override;
+	void setScale(float scaleX, float scaleY);
 };
 #endif
