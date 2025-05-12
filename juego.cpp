@@ -9,6 +9,7 @@ Juego::Juego()
       puntaje(0),
       nivel(1),
       estado(BIENVENIDA),
+    oleadasJefeFinal(0),
     posicionInicialRayNivel1(100, 200)
 {
     ventana.setFramerateLimit(60);
@@ -51,7 +52,7 @@ Juego::Juego()
     }
     spriteFondoTutorial.setTexture(fondoTutorial);
 
-    // Cargar nivel base (puede usarse luego)
+    // Cargar nivel 1 (puede usarse luego)
     cargarnivel(nivel);
 
     if (!fondoLaberinto.loadFromFile("laberintocompletos.png")) {
@@ -65,6 +66,19 @@ Juego::Juego()
         {1600, 600},  // Hormiga 3
         {1600, 800},  // Hormiga 4
     };
+
+    posicionesHormigasJefeFinal = {
+        {1000, 100},  // Hormiga 1
+        {1000, 400},  // Hormiga 2S
+        {1000, 700}, // Hormiga 3
+
+    };
+
+    //Cargar ultimo nivel
+    if (!fondoJefefinal.loadFromFile("fondoJefefinalmorado.jpg")) {
+        cout << "Error cargando fondo de laberinto" << endl;
+    }
+    spritefondojefefinal.setTexture(fondoJefefinal);
 
 }
 
@@ -107,7 +121,7 @@ void Juego::procesareventos() {
                 inicializarTutorial();
             }
         }
-        if (estado == TUTORIAL || estado == JUGANDO) {
+        if (estado == TUTORIAL || estado == JUGANDO || estado == JEFEFINAL) {
             if (evento.type == sf::Event::KeyPressed) {
                 sf::Vector2f currentPos = jugador.getPosition();
                 float newX = currentPos.x;
@@ -160,11 +174,23 @@ void Juego::procesareventos() {
                             ++it;
                         }
                     }
+                }} else if (estado == JEFEFINAL) {
+                    if (jugador.getBounds().intersects(jefefinal.getBounds())) {
+                        std::cout << "Atacando Rey Hongo en (" << jefefinal.getBounds().left << ", "
+                                  << jefefinal.getBounds().top << "), vida antes: " << jefefinal.getVida() << std::endl;
+                        jugador.atacar(&jefefinal);
+                        std::cout << "Vida después: " << jefefinal.getVida() << std::endl;
+                        if (jefefinal.getVida() <= 0) {
+                            estado = GAMEOVER;
+                            textoNivel.setString("¡Juego Completado!");
+                            std::cout << "Rey Hongo eliminado, cambiando a GAMEOVER" << std::endl;
+                        }
+                    }
                 }
             }
         }
     }
-}
+
 
 void Juego::actualizar() {
     if (estado == TUTORIAL) {
@@ -174,6 +200,22 @@ void Juego::actualizar() {
             textoNivel.setString("¡Tutorial completado!");
             std::cout << "Tutorial completado, cambiando a JUGANDO" << std::endl;
             cargarnivel(nivel);
+        }
+    } else if (estado == JUGANDO && nivel == 1) {
+        std::cout << "Actualizando JUGANDO, nivel 1, NPCs: " << npc.size() << std::endl;
+        if (npc.empty()) {
+            estado = JEFEFINAL;
+            textoNivel.setString("¡Desafío Final: Rey Hongo!");
+            std::cout << "Todas las hormigas eliminadas en nivel 1, cambiando a JEFEFINAL" << std::endl;
+            inicializarJefeFinal();
+        }
+    } else if (estado == JEFEFINAL) {
+        std::cout << "Actualizando JEFEFINAL, NPCs: " << npc.size() << ", Oleadas: " << oleadasJefeFinal << std::endl;
+        if (npc.empty() && oleadasJefeFinal < 2) {
+            std::cout << "Todas las hormigas eliminadas, generando oleada " << (oleadasJefeFinal + 1) << std::endl;
+            oleadasJefeFinal++;
+            jefefinal.controlarHormigas(npc, posicionesHormigasJefeFinal);
+            std::cout << "Oleada " << oleadasJefeFinal << " generada, NPCs: " << npc.size() << std::endl;
         }
     }
 }
@@ -225,6 +267,31 @@ void Juego::renderizar() {
         ventana.draw(textoNivel);
         std::cout << "Dibujando textoNivel" << std::endl;
     }
+    else if (estado == JEFEFINAL) {
+        ventana.draw(spritefondojefefinal);
+        std::cout << "Dibujando fondo JEFEFINAL" << std::endl;
+        for (auto& personaje : npc) {
+            if (personaje) {
+                personaje->dibujar(ventana);
+                std::cout << "Dibujando personaje en (" << personaje->getBounds().left << ", "
+                          << personaje->getBounds().top << ")" << std::endl;
+            } else {
+                std::cout << "Error: Personaje nulo en npc durante JEFEFINAL" << std::endl;
+            }
+        }
+        jefefinal.dibujar(ventana);
+        std::cout << "Dibujando Rey Hongo en (" << jefefinal.getBounds().left << ", "
+                  << jefefinal.getBounds().top << ")" << std::endl;
+        jugador.dibujar(ventana);
+        std::cout << "Dibujando Ray en (" << jugador.getBounds().left << ", "
+                  << jugador.getBounds().top << ")" << std::endl;
+        ventana.draw(textoNivel);
+        std::cout << "Dibujando textoNivel" << std::endl;
+    } else if (estado == GAMEOVER) {
+        ventana.draw(spriteFondoTutorial);
+        ventana.draw(textoNivel);
+        std::cout << "Dibujando GAMEOVER" << std::endl;
+    }
     ventana.display();
 }
 
@@ -233,14 +300,14 @@ void Juego::inicializarTutorial() {
     cout << "Inicializando TUTORIAL" << endl;
     jugador.setScale(1.0f, 1.0f);
     jugador.setPosition(10, 10);
-    cout << "Ray dibujado en 100 , 800" << endl;
+    cout << "Ray dibujado en 10 , 10" << endl;
     npc.clear();
     npc.push_back(make_unique<Hormigas>(true));
     npc.back()->setPosition(1600, 100);
-    cout << "Hormiga dibujado en 600 , 800" << endl;
+    cout << "Hormiga dibujado en 1600 , 800" << endl;
     npc.push_back(make_unique<Hormigas>(true));
     npc.back()->setPosition(1600, 500);
-    cout << "Hormiga dibujado en 1000 , 800" << endl;
+    cout << "Hormiga dibujado en 1600 , 800" << endl;
 }
 
 bool Juego::PuedeMoverse(float Xnew, float Ynew) {
@@ -248,17 +315,49 @@ bool Juego::PuedeMoverse(float Xnew, float Ynew) {
     rayBounds.left = Xnew;
     rayBounds.top = Ynew;
 
-    for (const auto& hormiga : npc) {
-        sf::FloatRect hormigaBounds = hormiga->getBounds();
-        if (rayBounds.intersects(hormigaBounds)) {
-            std::cout << "Colisión detectada con hormiga en (" << hormigaBounds.left << ", "
-                      << hormigaBounds.top << ")" << std::endl;
+    std::cout << "Ray bounds: [" << rayBounds.left << ", " << rayBounds.top << ", "
+              << rayBounds.width << ", " << rayBounds.height << "]" << std::endl;
+
+    for (const auto& personaje : npc) {
+        sf::FloatRect personajeBounds = personaje->getBounds();
+        std::cout << "Personaje bounds: [" << personajeBounds.left << ", " << personajeBounds.top << ", "
+                  << personajeBounds.width << ", " << personajeBounds.height << "]" << std::endl;
+        if (rayBounds.intersects(personajeBounds)) {
+            std::cout << "Colisión detectada con hormiga en (" << personajeBounds.left << ", "
+                      << personajeBounds.top << ")" << std::endl;
+            return false;
+        }
+    }
+    if (estado == JEFEFINAL) {
+        sf::FloatRect jefeBounds = jefefinal.getBounds();
+        std::cout << "Jefe bounds: [" << jefeBounds.left << ", " << jefeBounds.top << ", "
+                  << jefeBounds.width << ", " << jefeBounds.height << "]" << std::endl;
+        if (rayBounds.intersects(jefeBounds)) {
+            std::cout << "Colisión detectada con Rey Hongo en (" << jefeBounds.left << ", "
+                      << jefeBounds.top << ")" << std::endl;
             return false;
         }
     }
     return true;
 }
 
+void Juego::inicializarJefeFinal() {
+    std::cout << "Inicializando JEFEFINAL" << std::endl;
+    npc.clear();
+    oleadasJefeFinal = 0;
+    std::cout << "NPCs limpiados, tamaño: " << npc.size() << std::endl;
+    jugador.setPosition(posicionInicialRayNivel1.x, posicionInicialRayNivel1.y);
+    jugador.setScale(1.0f, 1.0f); // Escala normal para el jefe
+    std::cout << "Ray posicionado en (" << posicionInicialRayNivel1.x << ", "
+              << posicionInicialRayNivel1.y << ") con escala (1.0, 1.0)" << std::endl;
+    jefefinal.setPosition(1500, 200);
+    jefefinal.setScale(1.5f, 1.5f); // Escala normal para el jefe
+    std::cout << "Rey Hongo posicionado en (1000, 800) con escala (1.0, 1.0), vida: "
+              << jefefinal.getVida() << std::endl;
+    oleadasJefeFinal++;
+    jefefinal.controlarHormigas(npc, posicionesHormigasJefeFinal); // Generar primera oleada
+    std::cout << "Primera oleada generada, NPCs: " << npc.size() << std::endl;
+}
 
 // Resto de métodos (vacios o mínimos)
 void Juego::cargartop10() {}
@@ -283,18 +382,17 @@ void Juego::cargarnivel(int nivel) {
                       << npc.back()->getVida() << std::endl;
         }
     } else {
-        // Para otros niveles, usar posiciones predeterminadas y escala normal
         jugador.setPosition(100, 800);
-        jugador.setScale(1.0f, 1.0f); // Escala normal
+        jugador.setScale(1.0f, 1.0f);
         std::cout << "Ray reposicionado en (100, 800) con escala (1.0, 1.0) para nivel " << nivel << std::endl;
         for (int i = 0; i < nivel * 5; ++i) {
             npc.push_back(std::make_unique<Hormigas>(true));
             npc.back()->setPosition(300 + i * 100, 800);
-            npc.back()->setScale(1.0f, 1.0f); // Escala normal
-
+            npc.back()->setScale(1.0f, 1.0f);
+            std::cout << "Hormiga infectada creada en (" << 300 + i * 100 << ", 800) con escala (1.0, 1.0), vida: "
+                      << npc.back()->getVida() << std::endl;
         }
     }
-
     textoNivel.setString("Nivel " + std::to_string(nivel));
     std::cout << "Nivel " << nivel << " cargado, NPCs: " << npc.size() << std::endl;
 }

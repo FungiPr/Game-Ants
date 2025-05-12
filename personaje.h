@@ -24,4 +24,6 @@ public:
 	virtual void atacar(Personaje* objetivo) = 0;
 	int getVida();
 	virtual sf::FloatRect getBounds() = 0;
+	virtual void setPosition(float x, float y) = 0;
+	virtual void setScale(float scaleX, float scaleY) = 0;
 };

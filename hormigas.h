@@ -15,8 +15,8 @@ class Hormigas : public Personaje{
 	void atacar(Personaje* objetivo) override;
     virtual void dibujar(sf::RenderWindow& ventana);
 	bool getInfectadas();
-	void setPosition(float x,float y);
+	void setPosition(float x,float y)override;
 	sf::FloatRect getBounds() override;
-	void setScale(float scaleX, float scaleY);
+	void setScale(float scaleX, float scaleY) override;
 };
 #endif

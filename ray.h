@@ -20,10 +20,10 @@ class Ray : public Personaje{
 	void supergolpedeLuz(Personaje* enemigo);
 	void recolectarsemilla();
 	void recolectarHongo();
-	void setPosition(float x,float y);
+	void setPosition(float x,float y) override;
 	sf::FloatRect getBounds()  override;
 	sf::Vector2f getPosition();
-	void setScale(float scaleX, float scaleY);
+	void setScale(float scaleX, float scaleY) override;
 	virtual void dibujar(sf::RenderWindow& ventana);
 };
 #endif
