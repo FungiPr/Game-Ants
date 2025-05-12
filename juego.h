@@ -46,6 +46,13 @@ private:
 	sf::Texture fondoTutorial;
 	sf::Sprite spriteFondoTutorial;
 
+	//recursos nivel 1
+
+	sf::Texture fondoLaberinto; // Nuevo: textura para el laberinto
+	sf::Sprite spriteLaberinto;
+	sf::Vector2f posicionInicialRayNivel1; // Nuevo: posición inicial de Ray para nivel 1
+	std::vector<sf::Vector2f> posicionesHormigasNivel1;
+
 	// Métodos internos
 	void procesareventos();
 	void actualizar();
@@ -54,7 +61,10 @@ private:
 	void guardarpuntaje(string& nombre);
 	void cargarnivel(int nivel);
 	void cambiarnivel();
-	void inicializarTutorial();   // Inicializa elementos del tutorial
+	void inicializarTutorial();
+	bool PuedeMoverse(float Xnew, float Ynew);
+
+	// Inicializa elementos del tutorial
 
 public:
 	Juego();

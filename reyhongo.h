@@ -11,9 +11,10 @@ class Reyhongo : public Personaje{
     int energiaHormigas;
     public:
     Reyhongo();
-    void dispararesporas(Personaje* objetivo);
+    void atacar(Personaje* objetivo) override;
     void controlarhormigas(vector<Personaje*>& npc);
     virtual void dibujar(sf::RenderWindow& ventana);
+    sf::FloatRect getBounds()  override;
 };
 
 
