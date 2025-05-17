@@ -1,16 +1,78 @@
 #include "hormigas.h"
-#include <iostream>
 #include <SFML/Graphics.hpp>
 using namespace std;
-#include "hormigas.h"
 
-Hormigas::Hormigas(bool infectadas)
-    : Personaje(infectadas ? "npc infectado.png" : "npc.png", infectadas ? 50 : 50) {
-    this->infectadas = infectadas;
+Hormigas::Hormigas(bool infectadas, sf::Vector2f posicion)
+    : Personaje(infectadas ? "hormigainfectadavistasuperior.png" : "Npcparado.png", 50),
+      infectadas(infectadas),
+      enPosicionDisparo(false)
+{
+    sprite.setPosition(posicion);
+    sprite.setScale(1.0f, 1.0f);
+    posicion_x = posicion.x;
+    posicion_y = posicion.y;
+    std::cout << "Hormiga creada (" << (infectadas ? "infectada" : "no infectada")
+              << ") en posición (" << posicion_x << ", " << posicion_y << "), vida inicial: "
+              << vida_actual << std::endl;
 }
 
+void Hormigas::moverHaciaJugador(sf::Vector2f posicionJugador, float deltaTime, std::function<bool(float, float)> puedeMoverse) {
+    if (!infectadas) {
+        std::cout << "Hormiga no infectada, no se mueve" << std::endl;
+        return;
+    }
 
-void Hormigas::ataque(Personaje* objetivo) {
+    // Calcular vector de dirección hacia el jugador
+    sf::Vector2f posicionActual = sprite.getPosition();
+    sf::Vector2f direccion = posicionJugador - posicionActual;
+    float distancia = std::sqrt(direccion.x * direccion.x + direccion.y * direccion.y);
+
+    std::cout << "Hormiga en (" << posicionActual.x << ", " << posicionActual.y
+              << "), Jugador en (" << posicionJugador.x << ", " << posicionJugador.y
+              << "), Distancia: " << distancia << ", deltaTime: " << deltaTime << std::endl;
+
+    // Normalizar dirección
+    if (distancia > 0) {
+        direccion.x /= distancia;
+        direccion.y /= distancia;
+    } else {
+        std::cout << "Distancia cero, no se mueve" << std::endl;
+        return;
+    }
+
+    // Determinar si moverse hacia el jugador o detenerse
+    float movimiento = 0.0f;
+    if (distancia > distanciaObjetivo + 10.0f) {
+        movimiento = velocidad * deltaTime; // Mover hacia el jugador
+        enPosicionDisparo = false;
+        std::cout << "Moviendo hacia jugador, movimiento: " << movimiento << std::endl;
+    } else {
+        enPosicionDisparo = true;
+        std::cout << "En posición de disparo, no se mueve" << std::endl;
+        return;
+    }
+
+    // Calcular desplazamiento
+    float dx = direccion.x * movimiento;
+    float dy = direccion.y * movimiento;
+
+    // Verificar si el movimiento es válido
+    float newX = posicionActual.x + dx;
+    float newY = posicionActual.y + dy;
+    bool movimientoValido = puedeMoverse(newX, newY);
+    std::cout << "Intentando mover a (" << newX << ", " << newY << "), PuedeMoverse: " << (movimientoValido ? "true" : "false") << std::endl;
+
+    if (movimientoValido) {
+        sprite.move(dx, dy);
+        posicion_x = newX;
+        posicion_y = newY;
+        std::cout << "Hormiga movida a (" << newX << ", " << newY << ")" << std::endl;
+    } else {
+        std::cout << "Movimiento bloqueado por colisión" << std::endl;
+    }
+}
+
+void Hormigas::atacar(Personaje* objetivo) {
     if (infectadas) {
         objetivo->recibirdano(10);
 }
@@ -23,8 +85,22 @@ void Hormigas::setPosition(float x, float y) {
     sprite.setPosition(x,y);
 }
 
+void Hormigas::setScale(float scaleX, float scaleY) {
+    sprite.setScale(scaleX, scaleY);
+    std::cout << "Escala de hormiga ajustada a (" << scaleX << ", " << scaleY << ")" << std::endl;
+}
+
 sf::FloatRect Hormigas::getBounds() {
-    return sprite.getGlobalBounds();
+    sf::FloatRect bounds = sprite.getGlobalBounds();
+    float scaleReduction = 0.70f;// Reducir el tamaño para colisiones más precisas
+    float newWidth = bounds.width * scaleReduction;
+    float newHeight = bounds.height * scaleReduction;
+    float offsetX = (bounds.width - newWidth) / 2.0f;
+    float offsetY = (bounds.height - newHeight) / 2.0f;
+    sf::FloatRect adjustedBounds(bounds.left + offsetX, bounds.top + offsetY, newWidth, newHeight);
+    std::cout << "Hormiga bounds: [" << adjustedBounds.left << ", " << adjustedBounds.top << ", "
+              << adjustedBounds.width << ", " << adjustedBounds.height << "]" << std::endl;
+    return adjustedBounds;
 }
 
 void Hormigas::dibujar(sf::RenderWindow& ventana){

@@ -14,7 +14,7 @@ using namespace std;
 class Juego {
 private:
 	// Estados del juego: bienvenida, tutorial, juego principal
-	enum EstadoJuego { BIENVENIDA, TUTORIAL, JUGANDO };
+	enum EstadoJuego { BIENVENIDA, TUTORIAL, JUGANDO,JEFEFINAL, GAMEOVER };
 	EstadoJuego estado;                  // Estado actual
 
 	// Ventana y recursos globales
@@ -27,7 +27,7 @@ private:
 	// Jugador y NPCs
 	Ray jugador;
 	Reyhongo jefefinal;
-	vector<unique_ptr<Hormigas>> npc;
+	vector<unique_ptr<Personaje>> npc;
 	int puntaje;
 	int nivel;
 	sf::Clock reloj;
@@ -46,15 +46,36 @@ private:
 	sf::Texture fondoTutorial;
 	sf::Sprite spriteFondoTutorial;
 
+	//recursos nivel 1
+
+	sf::Texture fondoLaberinto; // Nuevo: textura para el laberinto
+	sf::Sprite spriteLaberinto;
+	sf::Vector2f posicionInicialRayNivel1; // Nuevo: posición inicial de Ray para nivel 1
+	std::vector<sf::Vector2f> posicionesHormigasNivel1;
+	bool laberintoCompletado;
+	sf::FloatRect finalLaberinto; // Área del final del laberinto
+
+	//recursos ultimo nivel
+	sf::Texture fondoJefefinal; // Nuevo: textura para el laberinto
+	sf::Sprite spritefondojefefinal;
+	std::vector<sf::Vector2f> posicionesHormigasJefeFinal;
+	int oleadasJefeFinal;
+
 	// Métodos internos
 	void procesareventos();
-	void actualizar();
+	void actualizar(float deltaTime);
 	void renderizar();
 	void cargartop10();
 	void guardarpuntaje(string& nombre);
 	void cargarnivel(int nivel);
 	void cambiarnivel();
-	void inicializarTutorial();   // Inicializa elementos del tutorial
+	void inicializarTutorial();
+	void inicializarJefeFinal();
+	bool PuedeMoverse(float Xnew, float Ynew, Personaje* personajeActual);
+
+
+
+	// Inicializa elementos del tutorial
 
 public:
 	Juego();

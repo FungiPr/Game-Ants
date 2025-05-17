@@ -4,6 +4,7 @@
 #include "personaje.h" 
 #include <iostream>
 #include <vector>
+#include <memory>
 using namespace std;
 
 class Reyhongo : public Personaje{   
@@ -11,9 +12,12 @@ class Reyhongo : public Personaje{
     int energiaHormigas;
     public:
     Reyhongo();
-    void dispararesporas(Personaje* objetivo);
-    void controlarhormigas(vector<Personaje*>& npc);
+    void atacar(Personaje* objetivo) override;
+    void controlarHormigas(std::vector<std::unique_ptr<Personaje>>& npc, const std::vector<sf::Vector2f>& posiciones);
+    void setPosition(float x,float y)override;
+    void setScale(float scaleX, float scaleY) override;
     virtual void dibujar(sf::RenderWindow& ventana);
+    sf::FloatRect getBounds()  override;
 };
 
 

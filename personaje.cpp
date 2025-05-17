@@ -42,14 +42,8 @@ void Personaje::recibirdano(int cantidad) {
     }
 }
 
-void Personaje::atacar(Personaje* objetivo) {
-    if (objetivo && vivo) {
-        objetivo->recibirdano(10); // Por ejemplo, daño fijo de 10
-        cout << "Atacó al objetivo y le hizo 10 de daño." << endl;
-    }
-}
 
-int Personaje::getvida() {
+int Personaje::getVida() {
     return vida_actual;
 }
 
