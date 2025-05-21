@@ -11,6 +11,7 @@ Hormigas::Hormigas(bool infectadas, sf::Vector2f posicion)
     sprite.setScale(1.0f, 1.0f);
     posicion_x = posicion.x;
     posicion_y = posicion.y;
+    sprite.setOrigin(sprite.getLocalBounds().width / 2, sprite.getLocalBounds().height / 2);
     std::cout << "Hormiga creada (" << (infectadas ? "infectada" : "no infectada")
               << ") en posición (" << posicion_x << ", " << posicion_y << "), vida inicial: "
               << vida_actual << std::endl;
@@ -101,6 +102,34 @@ sf::FloatRect Hormigas::getBounds() {
     std::cout << "Hormiga bounds: [" << adjustedBounds.left << ", " << adjustedBounds.top << ", "
               << adjustedBounds.width << ", " << adjustedBounds.height << "]" << std::endl;
     return adjustedBounds;
+}
+
+void Hormigas::dispararEspora(std::vector<sf::CircleShape>& esporas, std::vector<sf::Vector2f>& direccionesEsporas, Personaje* jugador) {
+    if (relojDisparo.getElapsedTime().asSeconds() < 3.0f) return;
+
+    // Crear esporaw
+    sf::CircleShape espora(20.0f);
+    espora.setFillColor(sf::Color(128, 0, 128)); // Morado
+    espora.setPosition(sprite.getPosition());
+
+    // Obtener el centro del sprite del jugador (Ray)
+    sf::FloatRect jugadorBounds = jugador->getBounds();
+    sf::Vector2f centroJugador(jugadorBounds.left + jugadorBounds.width / 2.0f,
+                               jugadorBounds.top + jugadorBounds.height / 2.0f);
+
+    // Calcular dirección hacia el centro del jugador
+    sf::Vector2f direccion(centroJugador.x - sprite.getPosition().x, centroJugador.y - sprite.getPosition().y);
+    float magnitud = std::sqrt(direccion.x * direccion.x + direccion.y * direccion.y);
+    if (magnitud > 0) {
+        direccion.x /= magnitud;
+        direccion.y /= magnitud;
+    }
+
+    esporas.push_back(espora);
+    direccionesEsporas.push_back(direccion);
+    relojDisparo.restart();
+    std::cout << "Hormiga disparó espora desde (" << sprite.getPosition().x << ", " << sprite.getPosition().y
+              << ") hacia el centro de Ray (" << centroJugador.x << ", " << centroJugador.y << ")" << std::endl;
 }
 
 void Hormigas::dibujar(sf::RenderWindow& ventana){

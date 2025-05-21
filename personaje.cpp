@@ -42,6 +42,10 @@ void Personaje::recibirdano(int cantidad) {
     }
 }
 
+void Personaje::restablecerVida() {
+    vida_actual = 100.0f;
+    std::cout << "Vida restablecida a 100.0f" << std::endl;
+}
 
 int Personaje::getVida() {
     return vida_actual;

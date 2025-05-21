@@ -9,7 +9,9 @@ Ray::Ray()
       hongosbiolumicentesrecolectados(0),
       frameActual(0),
       tiempoFrame(0.0f),
-    enMovimiento(false)
+    enMovimiento(false),
+    estaSaltando(false),
+    alturaSalto(100.0f)
 {
     // Cargar las texturas de animación
     texturasAnimacion.resize(3); // Base, pie derecho, pie izquierdo
@@ -49,12 +51,38 @@ void Ray::mover(float dx, float dy) {
     }
 }
 
-void Ray::saltar() {
-    sprite.move(0, -50);
-    std::cout << "Ray saltando, nueva posición: (" << sprite.getPosition().x << ", "
-              << sprite.getPosition().y << ")" << std::endl;
-    // No cambiamos la animación para el salto, pero podrías añadir una textura específica si quieres
+bool Ray::isSaltando() {
+    return estaSaltando;
 }
+
+void Ray::actualizarSalto(float deltaTime) {
+    if (!estaSaltando) return;
+
+    float tiempoSalto = relojSalto.getElapsedTime().asSeconds();
+    float duracionSalto = 1.0f; // Duración total del salto (segundos)
+
+    if (tiempoSalto >= duracionSalto) {
+        // Terminar salto
+        estaSaltando = false;
+        sprite.setPosition(posicionOriginal); // Restaurar posición original
+        std::cout << "Ray terminó salto, posición restaurada: (" << posicionOriginal.x << ", " << posicionOriginal.y << ")" << std::endl;
+        return;
+    }
+
+    // Animación: desplazamiento vertical (parábola suave)
+    float t = tiempoSalto / duracionSalto; // Progreso normalizado (0 a 1)
+    float altura = -4 * alturaSalto * t * (t - 1); // Fórmula parabólica: -4h*t*(t-1)
+    sprite.setPosition(posicionOriginal.x, posicionOriginal.y - altura);
+}
+
+void Ray::saltar() {
+        if (!estaSaltando) {
+            estaSaltando = true;
+            relojSalto.restart();
+            posicionOriginal = sprite.getPosition();
+            std::cout << "Ray inició salto en (" << posicionOriginal.x << ", " << posicionOriginal.y << ")" << std::endl;
+        }
+    }
 
 void Ray::atacar(Personaje* enemigo) {
     enemigo->recibirdano(15);
@@ -110,7 +138,7 @@ void Ray::setScale(float scaleX, float scaleY) {
 
 sf::FloatRect Ray::getBounds() {
     sf::FloatRect bounds = sprite.getGlobalBounds();
-    float scaleReduction = 0.7f;
+    float scaleReduction = 0.5f;
     float newWidth = bounds.width * scaleReduction;
     float newHeight = bounds.height * scaleReduction;
     float offsetX = (bounds.width - newWidth) / 2.0f;

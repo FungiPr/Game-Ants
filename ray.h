@@ -16,7 +16,12 @@ class Ray : public Personaje{
 	float tiempoFrame; // Temporizador para controlar el cambio de frames
 	bool enMovimiento; // Indica si Ray está en movimiento
 	static constexpr float duracionFrame = 0.1f; // Duración de cada frame en segundos
-	static constexpr float velocidad = 100.0f;
+	static constexpr float velocidad = 200.0f;
+	bool estaSaltando;
+	float alturaSalto; // Altura máxima del salto (píxeles)
+	sf::Clock relojSalto; // Temporizador para la duración del salto
+	sf::Texture texturaSalto; // Textura para el salto (RaySaltando.png)
+	sf::Vector2f posicionOriginal; // Posición antes del salto (para animación)
 	public:
 	Ray();
 	void mover(float dx,float dy) override;
@@ -29,7 +34,10 @@ class Ray : public Personaje{
 	void setPosition(float x,float y) override;
 	sf::FloatRect getBounds()  override;
 	sf::Vector2f getPosition();
+	bool isSaltando();
 	void setScale(float scaleX, float scaleY) override;
 	virtual void dibujar(sf::RenderWindow& ventana);
+	void actualizarSalto(float deltaTime);
+
 };
 #endif

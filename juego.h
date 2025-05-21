@@ -45,6 +45,8 @@ private:
 	// Recursos para tutorial
 	sf::Texture fondoTutorial;
 	sf::Sprite spriteFondoTutorial;
+	std::vector<sf::CircleShape> esporas; // Almacena esporas
+	std::vector<sf::Vector2f> direccionesEsporas; // Almacena direcciones de esporas
 
 	//recursos nivel 1
 
@@ -54,6 +56,10 @@ private:
 	std::vector<sf::Vector2f> posicionesHormigasNivel1;
 	bool laberintoCompletado;
 	sf::FloatRect finalLaberinto; // Área del final del laberinto
+	sf::Image laberintoColision; // Imagen para mapa de colisión
+	bool laberintoCargado; // Bandera para verificar carga del mapa
+	vector<sf::FloatRect> laberintoMuros;// Nuevo: Vector de muros para el laberinto
+	vector<sf::RectangleShape> laberintoMurosVisuales;	// Nuevo: Vector de rectángulos visuales para mostrar los muros
 
 	//recursos ultimo nivel
 	sf::Texture fondoJefefinal; // Nuevo: textura para el laberinto
@@ -72,7 +78,8 @@ private:
 	void inicializarTutorial();
 	void inicializarJefeFinal();
 	bool PuedeMoverse(float Xnew, float Ynew, Personaje* personajeActual);
-
+	void dibujarBarraSalud(sf::RenderWindow& ventana, Personaje& personaje, float vidaMax);
+	void inicializarMurosLaberinto(); // Nuevo método para inicializar los muros
 
 
 	// Inicializa elementos del tutorial
