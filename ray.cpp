@@ -1,9 +1,10 @@
 #include "ray.h"
 #include <iostream>
+constexpr int Ray::MAX_ENERGIA;
 
 Ray::Ray()
     : Personaje("Rayvistasuperiors.png", 100),
-      bastonEnergia(100),
+      bastonEnergia(MAX_ENERGIA),
       numeroVidas(3),
       SemillasRecolectadas(0),
       hongosbiolumicentesrecolectados(0),
@@ -31,6 +32,7 @@ Ray::Ray()
     sprite.setTexture(texturasAnimacion[0]); // Iniciar con la textura base
     sprite.setPosition(100, 400);
     sprite.setScale(1.0f, 1.0f);
+
     std::cout << "Ray creado con vida inicial: " << vida_actual
               << ", posición: (100, 400), escala: (1.0, 1.0)" << std::endl;
 }
@@ -90,9 +92,9 @@ void Ray::atacar(Personaje* enemigo) {
 }
 
 void Ray::golpedeLuz(Personaje* enemigo) {
-    if (bastonEnergia >= 50) {
+    if (enemigo && bastonEnergia >= 50) {
         enemigo->recibirdano(25);
-        bastonEnergia -= 50;
+        consumirEnergia(50); // Usar el método consumirEnergia
         std::cout << "Ray usa golpedeLuz, causando 25 de daño, energía restante: "
                   << bastonEnergia << std::endl;
     } else {
@@ -102,9 +104,9 @@ void Ray::golpedeLuz(Personaje* enemigo) {
 }
 
 void Ray::supergolpedeLuz(Personaje* enemigo) {
-    if (bastonEnergia >= 100) {
+    if (enemigo && bastonEnergia == 100) {
         enemigo->recibirdano(50);
-        bastonEnergia -= 100;
+        consumirEnergia(100); // Usar el método consumirEnergia
         std::cout << "Ray usa supergolpedeLuz, causando 50 de daño, energía restante: "
                   << bastonEnergia << std::endl;
     } else {
@@ -112,6 +114,26 @@ void Ray::supergolpedeLuz(Personaje* enemigo) {
                   << bastonEnergia << ")" << std::endl;
     }
 }
+
+void Ray::consumirEnergia(int cantidad) {
+    if (bastonEnergia >= cantidad) {
+        bastonEnergia -= cantidad;
+    } else {
+        bastonEnergia = 0; // Asegurarse de no ir por debajo de 0
+    }
+    cout << "Energía consumida: " << cantidad << ", Energía restante: " << bastonEnergia << endl;
+}
+
+void Ray::aumentarVida(int vidaRecuperada) {
+    vida_actual += vidaRecuperada;
+    if (vida_actual > vidamaxima) vida_actual = vidamaxima;
+    if (vida_actual < 0) vida_actual = 0;
+}
+
+void Ray::setBastonEnergia(int energia) {
+    bastonEnergia = std::max(0, std::min(energia, MAX_ENERGIA)); // Asegurar que esté entre 0 y MAX_ENERGIA
+}
+
 
 void Ray::recolectarsemilla() {
     SemillasRecolectadas++;
@@ -146,9 +168,7 @@ sf::FloatRect Ray::getBounds() {
     return sf::FloatRect(bounds.left + offsetX, bounds.top + offsetY, newWidth, newHeight);
 }
 
-sf::Vector2f Ray::getPosition() {
-    return sprite.getPosition();
-}
+
 
 void Ray::dibujar(sf::RenderWindow& ventana) {
     ventana.draw(sprite);

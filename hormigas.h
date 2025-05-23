@@ -12,8 +12,8 @@ class Hormigas : public Personaje{
 
     private:
     bool infectadas;
-	static constexpr float velocidad = 40.0f; // Velocidad en píxeles por segundo
-	static constexpr float distanciaObjetivo = 400.0f; // Distancia a mantener de Ray
+	static constexpr float velocidad = 50.0f; // Velocidad en píxeles por segundo
+	static constexpr float distanciaObjetivo = 300.0f; // Distancia a mantener de Ray
 	bool enPosicionDisparo; // Indica si está a la distancia correcta para disparar
 	sf::Clock relojDisparo;
     public:

@@ -22,6 +22,8 @@ class Ray : public Personaje{
 	sf::Clock relojSalto; // Temporizador para la duración del salto
 	sf::Texture texturaSalto; // Textura para el salto (RaySaltando.png)
 	sf::Vector2f posicionOriginal; // Posición antes del salto (para animación)
+	static constexpr int MAX_ENERGIA = 100; // Declaración de la constante dentro de la clase
+
 	public:
 	Ray();
 	void mover(float dx,float dy) override;
@@ -31,13 +33,17 @@ class Ray : public Personaje{
 	void supergolpedeLuz(Personaje* enemigo);
 	void recolectarsemilla();
 	void recolectarHongo();
+	void aumentarVida(int vida);
 	void setPosition(float x,float y) override;
 	sf::FloatRect getBounds()  override;
-	sf::Vector2f getPosition();
+
 	bool isSaltando();
 	void setScale(float scaleX, float scaleY) override;
 	virtual void dibujar(sf::RenderWindow& ventana);
 	void actualizarSalto(float deltaTime);
-
+	int getBastonEnergia() const { return bastonEnergia; } // Método para obtener la energía
+	int getMaxEnergia() const { return MAX_ENERGIA; } // Nuevo método para obtener MAX_ENERGIA
+	void consumirEnergia(int cantidad); // Método para consumir energía
+	void setBastonEnergia(int energia);
 };
 #endif
