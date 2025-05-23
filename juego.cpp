@@ -386,6 +386,16 @@ void Juego::actualizar(float deltaTime) {
             }
         }
 
+        // Activar ReyHongo solo después de las oleadas
+        if (estado == JEFEFINAL && npc.empty() && oleadasJefeFinal == 2 && jefefinal.getVida() > 0) {
+            jefefinal.moverHaciaJugador(posicionJugador, deltaTime, [this](float x, float y) {
+                return PuedeMoverse(x, y, &jefefinal);
+            });
+            if (jefefinal.estaEnPosicionDisparo()) {
+                jefefinal.dispararEspora(esporas, direccionesEsporas, &jugador);
+            }
+        }
+
         // Recolectar hongos para restaurar energía
         sf::FloatRect rayBounds = jugador.getBounds();
         for (size_t i = 0; i < hongos.size();) {
@@ -428,7 +438,7 @@ void Juego::actualizar(float deltaTime) {
                     ++i;
                     continue;
                 }
-                float vidaRecuperada = 10.0f;
+                float vidaRecuperada = 15.0f;
                 jugador.aumentarVida(static_cast<int>(vidaRecuperada));
                 std::cout << "Semilla recolectada en (" << semillas[i].getPosition().x << ", " << semillas[i].getPosition().y
                           << "), vida restaurada: " << vidaRecuperada << ", nueva vida: " << jugador.getVida() << std::endl;
@@ -450,11 +460,7 @@ void Juego::actualizar(float deltaTime) {
                 if (posicionesOriginalesHongos[i].second) { // Solo regenerar si fue recolectado
                     sf::Sprite hongo(hongoTexture);
                     if (hongoTexture.getSize().x == 0) {
-                        sf::CircleShape circulo(20.f);
-                        circulo.setFillColor(sf::Color::Red);
-                        circulo.setPosition(posicionesOriginalesHongos[i].first);
-
-                        hongo.setPosition(posicionesOriginalesHongos[i].first);
+                        cout << "no hay textura" << endl;
                     } else {
                         hongo.setOrigin(hongoTexture.getSize().x / 2.0f, hongoTexture.getSize().y / 2.0f);
                         hongo.setPosition(posicionesOriginalesHongos[i].first);
@@ -471,7 +477,7 @@ void Juego::actualizar(float deltaTime) {
                 if (posicionesOriginalesSemillas[i].second) {
                     sf::Sprite semilla(semillaTexture);
                     if (semillaTexture.getSize().x == 0) {
-                        cout << "Semilla llena (" << semillaTexture.getSize().x << endl;
+                        cout << "no hay textura" << endl;
                     } else {
                         semilla.setOrigin(semillaTexture.getSize().x / 2.0f, semillaTexture.getSize().y / 2.0f);
                         semilla.setPosition(posicionesOriginalesSemillas[i].first);
@@ -485,19 +491,17 @@ void Juego::actualizar(float deltaTime) {
             }
         }
 
-        // Generar 4 nuevos hongos después de la segunda oleada en JEFEFINAL (independiente de posiciones originales)
+        // Generar nuevos hongos y nuevas semillas después de la segunda oleada en JEFEFINAL
         static bool hongosGeneradosDespuesSegundaOleada = false;
         if (estado == JEFEFINAL && npc.empty() && oleadasJefeFinal == 2 && !hongosGeneradosDespuesSegundaOleada) {
             hongosGeneradosDespuesSegundaOleada = true;
-            // Definir nuevas posiciones predefinidas más adelante en el eje X
-            std::vector<sf::Vector2f> nuevasPosiciones = {
-                {1050, 300}, {900, 400}, {1000, 500}
+            std::vector<sf::Vector2f> nuevasPosicionesHongos = {
+                {1050, 300}, {900, 400}, {1000, 500}, {400, 500}, {300, 220}
             };
-
-            for (const auto& pos : nuevasPosiciones) {
+            for (const auto& pos : nuevasPosicionesHongos) {
                 sf::Sprite hongo(hongoTexture);
                 if (hongoTexture.getSize().x == 0) {
-                    cout << "no hay textura"<< endl;
+                    cout << "No hay Textura" << endl;
                 } else {
                     hongo.setOrigin(hongoTexture.getSize().x / 2.0f, hongoTexture.getSize().y / 2.0f);
                     hongo.setPosition(pos);
@@ -507,14 +511,13 @@ void Juego::actualizar(float deltaTime) {
                 posicionesOriginalesHongos.push_back(std::make_pair(pos, false));
                 std::cout << "Nuevo hongo generado después de la segunda oleada en (" << pos.x << ", " << pos.y << ")" << std::endl;
             }
-            // Nuevas semillas
             std::vector<sf::Vector2f> nuevasPosicionesSemillas = {
-                {1000, 300}, {850, 400}
+                {100, 300}, {250, 800}, {550, 500}, {350, 50}, {650, 200}
             };
             for (const auto& pos : nuevasPosicionesSemillas) {
                 sf::Sprite semilla(semillaTexture);
                 if (semillaTexture.getSize().x == 0) {
-                    cout << "Semilla llena (" << semillaTexture.getSize().x << endl;
+                    cout << "No hay textura" <<endl;
                 } else {
                     semilla.setOrigin(semillaTexture.getSize().x / 2.0f, semillaTexture.getSize().y / 2.0f);
                     semilla.setPosition(pos);
@@ -526,22 +529,28 @@ void Juego::actualizar(float deltaTime) {
             }
         }
 
-        // Actualizar esporas y bolas (código existente)
+        // Actualizar esporas
         for (size_t i = 0; i < esporas.size();) {
-            float velocidadEspora = 100.0f;
+            float velocidadEspora = 150.0f;
             sf::Vector2f movimiento(direccionesEsporas[i].x * velocidadEspora * deltaTime, direccionesEsporas[i].y * velocidadEspora * deltaTime);
             esporas[i].move(movimiento);
 
             sf::FloatRect esporaBounds(esporas[i].getPosition().x - esporas[i].getRadius(), esporas[i].getPosition().y - esporas[i].getRadius(),
                                       esporas[i].getRadius() * 2, esporas[i].getRadius() * 2);
             if (esporaBounds.intersects(jugador.getBounds()) && !jugador.isSaltando()) {
+                bool dañoAplicado = false;
                 for (auto& personaje : npc) {
                     if (Hormigas* hormiga = dynamic_cast<Hormigas*>(personaje.get())) {
                         if (hormiga->getInfectadas()) {
-                            hormiga->atacar(&jugador);
+                            hormiga->atacar(&jugador); // Daño de hormiga (asumido 10)
+                            dañoAplicado = true;
                             break;
                         }
                     }
+                }
+                // Daño del ReyHongo si está activo
+                if (!dañoAplicado && estado == JEFEFINAL && npc.empty() && oleadasJefeFinal == 2) {
+                    jugador.recibirdano(20); // Daño de 20
                 }
                 esporas.erase(esporas.begin() + i);
                 direccionesEsporas.erase(direccionesEsporas.begin() + i);
@@ -566,6 +575,7 @@ void Juego::actualizar(float deltaTime) {
             ++i;
         }
 
+        // Actualizar bolas
         float velocidadBola = 300.0f;
         for (size_t i = 0; i < bolas.size();) {
             sf::Vector2f movimiento = direccionesBolas[i] * velocidadBola * deltaTime;
@@ -587,6 +597,11 @@ void Juego::actualizar(float deltaTime) {
                                 if (it->get() == hormiga) {
                                     it = npc.erase(it);
                                     std::cout << "Hormiga eliminada" << std::endl;
+                                    // Reducir vida del Reyhongo si estamos en JEFEFINAL
+                                    if (estado == JEFEFINAL && jefefinal.getVida() > 0) {
+                                        jefefinal.recibirdano(5); // Quitar 5 de vida al Reyhongo
+                                        std::cout << "Reyhongo perdió 5 de vida por eliminación de hormiga, vida restante: " << jefefinal.getVida() << std::endl;
+                                    }
                                 } else {
                                     ++it;
                                 }

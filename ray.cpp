@@ -160,7 +160,7 @@ void Ray::setScale(float scaleX, float scaleY) {
 
 sf::FloatRect Ray::getBounds() {
     sf::FloatRect bounds = sprite.getGlobalBounds();
-    float scaleReduction = 0.5f;
+    float scaleReduction = 0.7f;
     float newWidth = bounds.width * scaleReduction;
     float newHeight = bounds.height * scaleReduction;
     float offsetX = (bounds.width - newWidth) / 2.0f;
