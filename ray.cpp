@@ -12,7 +12,8 @@ Ray::Ray()
       tiempoFrame(0.0f),
     enMovimiento(false),
     estaSaltando(false),
-    alturaSalto(100.0f)
+    alturaSalto(100.0f),
+    tiempoEsperaAtaque(2.0f) // Tiempo de espera de 2 segundos entre ataques
 {
     // Cargar las texturas de animación
     texturasAnimacion.resize(3); // Base, pie derecho, pie izquierdo
@@ -27,6 +28,23 @@ Ray::Ray()
     if (!texturasAnimacion[2].loadFromFile("Raycaminandoizquierdos.png")) {
         std::cerr << "Error: No se pudo cargar la textura Raycaminandoizquierdos.png" << std::endl;
         throw std::runtime_error("Fallo al cargar Raycaminandoizquierdos.png");
+    }
+    if (!golpeNormalTexture.loadFromFile("raygolpeando.png")) {
+        std::cout << "Error al cargar golpe_normal.png, usando rectángulo rojo" << std::endl;
+    }
+
+    if (!golpeLuzTexture.loadFromFile("raygolpedeluz.png")) {
+        std::cout << "Error al cargar golpe_luz.png, usando rectángulo amarillo" << std::endl;
+    }
+
+    if (!superGolpeLuzTexture.loadFromFile("raysupergolpedeluz.png")) {
+        std::cout << "Error al cargar super_golpe_luz.png, usando rectángulo blanco" << std::endl;
+    }
+    if (!projectileGolpeTexture.loadFromFile("bolagolpedeluz.png")) {
+        std::cout << "Error al cargar raygolpedeluz.png" << std::endl;
+    }
+    if (!projectileSuperGolpeTexture.loadFromFile("bolasupergolpedeluz.png")) {
+        std::cout << "Error al cargar bolasupergolpedeluz.png" << std::endl;
     }
 
     sprite.setTexture(texturasAnimacion[0]); // Iniciar con la textura base
@@ -86,9 +104,59 @@ void Ray::saltar() {
         }
     }
 
+void Ray::setAtaqueSprite(sf::Texture& texture, float duracion) {
+    spriteAtaque.setTexture(texture);
+    // Usar la misma escala que sprite
+    sf::Vector2f spriteScale = sprite.getScale();
+    spriteAtaque.setScale(spriteScale.x, spriteScale.y);
+    tiempoAtaqueRestante = duracion;
+
+    // Configurar el origen dependiendo de la textura
+    if (&texture == &golpeNormalTexture) {
+        float offsetX = 130.0f; // Valor ajustado que encontraste
+        float offsetY = 150.0f; // Valor ajustado que encontraste
+        spriteAtaque.setOrigin(texture.getSize().x / 2.0f - offsetX, texture.getSize().y / 2.0f - offsetY);
+        std::cout << "Origen ajustado para raygolpeando.png: ("
+                  << (texture.getSize().x / 2.0f - offsetX) << ", "
+                  << (texture.getSize().y / 2.0f - offsetY) << "), Tamaño: ("
+                  << texture.getSize().x << ", " << texture.getSize().y << "), Escala: ("
+                  << spriteScale.x << ", " << spriteScale.y << ")" << std::endl;
+    } else {
+        spriteAtaque.setOrigin(texture.getSize().x / 2.0f, texture.getSize().y / 2.0f);
+        std::cout << "Origen centrado para textura de ataque: ("
+                  << (texture.getSize().x / 2.0f) << ", "
+                  << (texture.getSize().y / 2.0f) << "), Tamaño: ("
+                  << texture.getSize().x << ", " << texture.getSize().y << "), Escala: ("
+                  << spriteScale.x << ", " << spriteScale.y << ")" << std::endl;
+    }
+}
+
+sf::Sprite& Ray::getSpriteAtaque() {
+    return spriteAtaque;
+}
+
+sf::Texture& Ray::getTextureGolpe() {
+    return textureGolpe;
+}
+
+sf::Texture& Ray::getTextureSuperGolpe() {
+    return textureSuperGolpe;
+}
+
+void Ray::setEstaAtacando(bool atacando) {
+    estaAtacando = atacando;
+}
+
+void Ray::setTiempoAtaqueRestante(float tiempo) {
+    tiempoAtaqueRestante = tiempo;
+}
+
 void Ray::atacar(Personaje* enemigo) {
     enemigo->recibirdano(15);
     std::cout << "Ray ataca, causando 15 de daño" << std::endl;
+    estaAtacando = true;
+    setAtaqueSprite(golpeNormalTexture, 0.15f); // Golpe normal por 0.5 segundos
+    relojAtaque.restart();
 }
 
 void Ray::golpedeLuz(Personaje* enemigo) {
@@ -97,6 +165,8 @@ void Ray::golpedeLuz(Personaje* enemigo) {
         consumirEnergia(50); // Usar el método consumirEnergia
         std::cout << "Ray usa golpedeLuz, causando 25 de daño, energía restante: "
                   << bastonEnergia << std::endl;
+        setAtaqueSprite(golpeLuzTexture, 0.3f);
+        relojAtaque.restart();
     } else {
         std::cout << "Ray no tiene suficiente energía para golpedeLuz (necesita 50, tiene "
                   << bastonEnergia << ")" << std::endl;
@@ -109,9 +179,62 @@ void Ray::supergolpedeLuz(Personaje* enemigo) {
         consumirEnergia(100); // Usar el método consumirEnergia
         std::cout << "Ray usa supergolpedeLuz, causando 50 de daño, energía restante: "
                   << bastonEnergia << std::endl;
+        setAtaqueSprite(superGolpeLuzTexture, 0.3f);
+        relojAtaque.restart();
     } else {
         std::cout << "Ray no tiene suficiente energía para supergolpedeLuz (necesita 100, tiene "
                   << bastonEnergia << ")" << std::endl;
+    }
+}
+
+sf::Texture& Ray::getProjectileGolpeTexture() {
+    return projectileGolpeTexture;
+}
+
+sf::Texture& Ray::getProjectileSuperGolpeTexture() {
+    return projectileSuperGolpeTexture;
+}
+
+void Ray::procesarAtaque(sf::Keyboard::Key key, Personaje* enemigo) {
+    bool fIsPressed = (key == sf::Keyboard::F) && sf::Keyboard::isKeyPressed(sf::Keyboard::F);
+    bool qIsPressed = (key == sf::Keyboard::Q) && sf::Keyboard::isKeyPressed(sf::Keyboard::Q);
+
+    // Solo procesar si no está atacando actualmente
+    if (!estaAtacando) {
+        // Ataque básico con F
+        if (fIsPressed && !fWasPressed) {
+            atacar(enemigo);
+            std::cout << "Tecla F presionada (nueva pulsación)" << std::endl;
+        }
+
+        // Ataque especial con Q
+        if (qIsPressed && !qWasPressed) {
+            if (bastonEnergia == 100) {
+                supergolpedeLuz(enemigo);
+                std::cout << "Tecla Q presionada (nueva pulsación), súper golpe de luz" << std::endl;
+            } else if (bastonEnergia >= 50) {
+                golpedeLuz(enemigo);
+                std::cout << "Tecla Q presionada (nueva pulsación), golpe de luz" << std::endl;
+            }
+        }
+    }
+
+    // Actualizar el estado anterior de las teclas
+    fWasPressed = fIsPressed;
+    qWasPressed = qIsPressed;
+}
+
+
+void Ray::actualizar(float deltaTime) {
+    actualizarSalto(deltaTime);
+    if (estaAtacando) {
+        tiempoAtaqueRestante -= deltaTime;
+        if (tiempoAtaqueRestante <= 0.0f) {
+            estaAtacando = false;
+            tiempoAtaqueRestante = 0.0f;
+            sprite.setTexture(texturasAnimacion[frameActual]); // Restaurar la textura de caminado
+            std::cout << "Ray terminó animación de ataque, restaurando frame " << frameActual << std::endl;
+        }
     }
 }
 
@@ -168,12 +291,22 @@ sf::FloatRect Ray::getBounds() {
     return sf::FloatRect(bounds.left + offsetX, bounds.top + offsetY, newWidth, newHeight);
 }
 
-
-
 void Ray::dibujar(sf::RenderWindow& ventana) {
-    ventana.draw(sprite);
-    std::cout << "Dibujando Ray en (" << sprite.getPosition().x << ", " << sprite.getPosition().y
-              << ") con frame " << frameActual << " ("
-              << (frameActual == 0 ? "base" : frameActual == 1 ? "pie derecho" : "pie izquierdo")
-              << ")" << std::endl;
+    if (estaAtacando && tiempoAtaqueRestante > 0.0f) {
+        // Sincronizar la posición y escala de spriteAtaque con sprite
+        spriteAtaque.setPosition(sprite.getPosition());
+        sf::Vector2f spriteScale = sprite.getScale();
+        spriteAtaque.setScale(spriteScale.x, spriteScale.y);
+        ventana.draw(spriteAtaque);
+        std::cout << "Dibujando Ray en modo ataque en (" << spriteAtaque.getPosition().x << ", "
+                  << spriteAtaque.getPosition().y << "), Escala: ("
+                  << spriteScale.x << ", " << spriteScale.y << ")" << std::endl;
+    } else {
+        sf::Vector2f spriteScale = sprite.getScale();
+        ventana.draw(sprite);
+        std::cout << "Dibujando Ray en (" << sprite.getPosition().x << ", " << sprite.getPosition().y
+                  << ") con frame " << frameActual << " ("
+                  << (frameActual == 0 ? "base" : frameActual == 1 ? "pie derecho" : "pie izquierdo")
+                  << "), Escala: (" << spriteScale.x << ", " << spriteScale.y << ")" << std::endl;
+    }
 }

@@ -16,7 +16,7 @@ void Reyhongo::atacar(Personaje* objetivo) {
     objetivo->recibirdano(20); // Daño fijo del Reyhongo
 }
 
-void Reyhongo::controlarHormigas(std::vector<std::unique_ptr<Personaje>>& npc, const std::vector<sf::Vector2f>& posiciones) {
+void Reyhongo::controlarHormigas(std::vector<std::unique_ptr<Personaje>>& npc, std::vector<sf::Vector2f>& posiciones) {
     std::cout << "Reyhongo: Iniciando controlarHormigas, posiciones recibidas: " << posiciones.size() << std::endl;
     npc.clear();
     std::cout << "Reyhongo: NPCs limpiados, tamaño actual: " << npc.size() << std::endl;
@@ -65,7 +65,8 @@ void Reyhongo::dibujar(sf::RenderWindow& ventana) {
     ventana.draw(sprite);
 }
 
-void Reyhongo::moverHaciaJugador(const sf::Vector2f& posicionJugador, float deltaTime, std::function<bool(float, float)> puedeMoverse) {
+
+void Reyhongo::moverHaciaJugador( sf::Vector2f& posicionJugador, float deltaTime, std::function<bool(float, float)> puedeMoverse) {
     // Calcular vector de dirección hacia el jugador
     sf::Vector2f posicionActual = sprite.getPosition();
     sf::Vector2f direccion = posicionJugador - posicionActual;
@@ -114,21 +115,27 @@ void Reyhongo::moverHaciaJugador(const sf::Vector2f& posicionJugador, float delt
     }
 }
 
-bool Reyhongo::estaEnPosicionDisparo() const {
+bool Reyhongo::estaEnPosicionDisparo()  {
     float tiempoTranscurrido = relojDisparo.getElapsedTime().asSeconds();
     std::cout << "Reyhongo::estaEnPosicionDisparo - Tiempo transcurrido: " << tiempoTranscurrido << " segundos" << std::endl;
-    return enPosicionDisparo && tiempoTranscurrido >= 1.5f;
+    return enPosicionDisparo && tiempoTranscurrido >= 1.3f;
 }
 
-void Reyhongo::dispararEspora(std::vector<sf::CircleShape>& esporas, std::vector<sf::Vector2f>& direcciones, Personaje* jugador) {
+void Reyhongo::dispararEspora(std::vector<sf::Sprite>& esporas, std::vector<sf::Vector2f>& direccionesEsporas, std::vector<float>& rotacionesEsporas, Personaje* jugador, sf::Texture& esporaTexture) {
     if (!estaEnPosicionDisparo()) {
         std::cout << "Reyhongo no dispara: no está en posición o temporizador no listo" << std::endl;
         return;
     }
+    sf::Sprite espora;
+        if (esporaTexture.getSize().x == 0) {
+            cout << "No hay textura" << endl;
+        } else {
+            espora.setTexture(esporaTexture);
+            espora.setOrigin(esporaTexture.getSize().x / 2.0f, esporaTexture.getSize().y / 2.0f);
+            espora.setPosition(sprite.getPosition());
+            espora.setScale(0.5f, 0.5f); // Ajustar tamaño de la espora
+        }
 
-    // Crear espora
-    sf::CircleShape espora(20.0f);
-    espora.setFillColor(sf::Color(128, 0, 128)); // Morado
     // Ajustar la posición inicial al centro del sprite del Reyhongo
     sf::FloatRect bounds = sprite.getGlobalBounds();
     sf::Vector2f centroReyhongo(bounds.left + bounds.width / 2.0f, bounds.top + bounds.height / 2.0f);
@@ -148,9 +155,8 @@ void Reyhongo::dispararEspora(std::vector<sf::CircleShape>& esporas, std::vector
     }
 
     esporas.push_back(espora);
-    direcciones.push_back(direccion);
-    std::cout << "Reyhongo creó espora, total esporas: " << esporas.size() << std::endl;
+    direccionesEsporas.push_back(direccion);
+    rotacionesEsporas.push_back(0.0f); // Inicializar rotación en 0 grados
     relojDisparo.restart();
-    std::cout << "Reyhongo disparó espora desde el centro (" << centroReyhongo.x << ", " << centroReyhongo.y
-              << ") hacia el centro de Ray (" << centroJugador.x << ", " << centroJugador.y << ")" << std::endl;
+    std::cout << "Espora disparada desde (" << sprite.getPosition().x << ", " << sprite.getPosition().y << ") hacia (" << jugador->getPosition().x << ", " << jugador->getPosition().y << ")" << std::endl;
 }

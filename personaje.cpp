@@ -43,9 +43,10 @@ void Personaje::recibirdano(int cantidad) {
 }
 
 void Personaje::restablecerVida() {
-    vida_actual = 100.0f;
-    std::cout << "Vida restablecida a 100.0f" << std::endl;
+    vida_actual = vidamaxima;
+    cout << "El personaje tiene toda su vida." << endl;
 }
+
 
 int Personaje::getVida() {
     return vida_actual;

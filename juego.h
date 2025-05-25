@@ -14,7 +14,7 @@ using namespace std;
 class Juego {
 private:
 	// Estados del juego: bienvenida, tutorial, juego principal
-	enum EstadoJuego { BIENVENIDA, TUTORIAL, JUGANDO,JEFEFINAL, GAMEOVER };
+	enum EstadoJuego { BIENVENIDA, TUTORIAL, JUGANDO,JEFEFINAL, GAMEOVER, WIN };
 	EstadoJuego estado;                  // Estado actual
 
 	// Ventana y recursos globales
@@ -45,15 +45,25 @@ private:
 	// Recursos para tutorial
 	sf::Texture fondoTutorial;
 	sf::Sprite spriteFondoTutorial;
-	std::vector<sf::CircleShape> esporas; // Almacena esporas
+	std::vector<sf::Sprite> esporas; // Almacena esporas
 	std::vector<sf::Vector2f> direccionesEsporas; // Almacena direcciones de esporas
-	std::vector<sf::CircleShape> bolas; // Nueva lista para las bolas
-	std::vector<sf::Vector2f> direccionesBolas; // Direcciones de las bolas
-	std::vector<float> dañosBolas;
+	std::vector<sf::Sprite> ataquesLuz;
+	std::vector<sf::Vector2f> direccionesAtaques;
+	std::vector<float> dañosAtaques;
 	sf::Texture hongoTexture; // Nueva textura para los hongos
 	std::vector<sf::Sprite> hongos; // Vector de sprites de hongos
+	std::vector<std::string> fuentesEsporas;
+	std::vector<float> rotacionesEsporas;
 
+	//Recursos para Gameover
+	sf::RectangleShape botonReiniciar; // Nuevo botón para reiniciar
+	sf::Text textoReiniciar; // Texto para el botón de reiniciar
 
+	//Recursos para Winner
+	sf::RectangleShape botonVolverJugar; // Botón para volver a jugar
+	sf::Text textoVolverJugar; // Texto para el botón de volver a jugar
+	sf::RectangleShape botonSalir; // Botón para salir del juego
+	sf::Text textoSalir; // Texto para el botón de salir
 
 	//recursos nivel 1
 
@@ -68,8 +78,6 @@ private:
 	vector<sf::FloatRect> laberintoMuros;// Nuevo: Vector de muros para el laberinto
 	vector<sf::RectangleShape> laberintoMurosVisuales;	// Nuevo: Vector de rectángulos visuales para mostrar los muros
 
-
-
 	//recursos ultimo nivel
 	sf::Texture fondoJefefinal; // Nuevo: textura para el laberinto
 	sf::Sprite spritefondojefefinal;
@@ -79,22 +87,24 @@ private:
 	sf::Texture semillaTexture; // Nueva textura para las semillas
 	std::vector<sf::Sprite> semillas; // Nuevas semillas
 	std::vector<std::pair<sf::Vector2f, bool>> posicionesOriginalesSemillas; // Estado de las semillas
+	sf::Texture esporaHormigaTexture; // Nueva textura para esporas de hormigas
+	sf::Texture esporaReyHongoTexture; // Nueva textura para esporas del Rey Hongo
+	bool hongosGeneradosDespuesSegundaOleada;
 
 	// Métodos internos
 	void procesareventos();
-	void actualizar(float deltaTime);
+	virtual void actualizar(float deltaTime);
 	void renderizar();
 	void cargartop10();
 	void guardarpuntaje(string& nombre);
 	void cargarnivel(int nivel);
-
 	void inicializarTutorial();
 	void inicializarJefeFinal();
 	bool PuedeMoverse(float Xnew, float Ynew, Personaje* personajeActual);
 	void dibujarBarraSalud(sf::RenderWindow& ventana, Personaje& personaje, float vidaMax);
 	void dibujarBarraEnergia(sf::RenderWindow& ventana, Ray& ray, float alturaBase);
 	void inicializarMurosLaberinto(); // Nuevo método para inicializar los muros
-
+	void limpiarEsporas();
 
 	// Inicializa elementos del tutorial
 

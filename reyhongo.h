@@ -20,14 +20,14 @@ class Reyhongo : public Personaje{
     public:
     Reyhongo();
     void atacar(Personaje* objetivo) override;
-    void controlarHormigas(std::vector<std::unique_ptr<Personaje>>& npc, const std::vector<sf::Vector2f>& posiciones);
+    void controlarHormigas(std::vector<std::unique_ptr<Personaje>>& npc,  std::vector<sf::Vector2f>& posiciones);
     void setPosition(float x, float y) override;
     void setScale(float scaleX, float scaleY) override;
     virtual void dibujar(sf::RenderWindow& ventana);
     sf::FloatRect getBounds() override;
-    void moverHaciaJugador(const sf::Vector2f& posicionJugador, float deltaTime, std::function<bool(float, float)> puedeMoverse);
-    bool estaEnPosicionDisparo() const;
-    void dispararEspora(std::vector<sf::CircleShape>& esporas, std::vector<sf::Vector2f>& direcciones, Personaje* jugador);
+    void moverHaciaJugador(sf::Vector2f& posicionJugador, float deltaTime, std::function<bool(float, float)> puedeMoverse);
+    bool estaEnPosicionDisparo() ;
+    void dispararEspora(std::vector<sf::Sprite>& esporas, std::vector<sf::Vector2f>& direccionesEsporas, std::vector<float>& rotacionesEsporas, Personaje* jugador, sf::Texture& esporaTexture);
 };
 
 

@@ -18,7 +18,6 @@ public:
 	float posicion_y;
 	Personaje(const string& archivo_textura, int vidaMax);
 	virtual ~Personaje();
-
 	void dibujar(sf::RenderWindow& ventana);
 	virtual void mover(float dx, float dy);
 	void recibirdano(int cantidad);
@@ -28,5 +27,5 @@ public:
 	virtual void setPosition(float x, float y) = 0;
 	sf::Vector2f getPosition()  { return sprite.getPosition(); }
 	virtual void setScale(float scaleX, float scaleY) = 0;
-	virtual void restablecerVida();
+	void restablecerVida();
 };
