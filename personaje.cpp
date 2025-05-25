@@ -27,11 +27,6 @@ void Personaje::dibujar(sf::RenderWindow& ventana) {
     }
 }
 
-void Personaje::mover(float dx, float dy) {
-    posicion_x += dx;
-    posicion_y += dy;
-    sprite.move(dx, dy);
-}
 
 void Personaje::recibirdano(int cantidad) {
     vida_actual -= cantidad;
@@ -42,14 +37,13 @@ void Personaje::recibirdano(int cantidad) {
     }
 }
 
-void Personaje::atacar(Personaje* objetivo) {
-    if (objetivo && vivo) {
-        objetivo->recibirdano(10); // Por ejemplo, daño fijo de 10
-        cout << "Atacó al objetivo y le hizo 10 de daño." << endl;
-    }
+void Personaje::restablecerVida() {
+    vida_actual = vidamaxima;
+    cout << "El personaje tiene toda su vida." << endl;
 }
 
-int Personaje::getvida() {
+
+int Personaje::getVida() {
     return vida_actual;
 }
 
