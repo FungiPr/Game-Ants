@@ -9,13 +9,15 @@ set(SFML_DIR "${SFML_ROOT}/lib/cmake/SFML")
 # Encuentra el paquete SFML
 find_package(SFML 2.5.1 COMPONENTS system window graphics network audio REQUIRED)
 
+include_directories(${CMAKE_SOURCE_DIR}/include)
+
 # Crear el ejecutable con todos los archivos fuente
 add_executable(PROYECTO_VIDEOJUEGO
         main.cpp
         hormigas.cpp
         juego.cpp
         personaje.cpp
-        #puntaje.cpp
+        puntaje.cpp
         ray.cpp
         reyhongo.cpp
 )
