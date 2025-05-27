@@ -195,7 +195,7 @@ void Juego::inicializarMurosLaberinto() {
 
     // Crear visualización de los muros
     cout << "Muros del laberinto inicializados: " << laberintoMuros.size() << " muros" << endl; // Muestra la cantidad de muros inicializados
-    for (const auto& muro : laberintoMuros) {
+    for ( auto& muro : laberintoMuros) {
         cout << "Muro: [" << muro.left << ", " << muro.top << ", " << muro.width << ", " << muro.height << "]" << endl; // Imprime las dimensiones y posición de cada muro
     }
 }
@@ -686,7 +686,7 @@ void Juego::actualizar(float deltaTime) {                              // Metodo
             std::vector<sf::Vector2f> nuevasPosicionesHongos = {            // Define nuevas posiciones para hongos
                 {1050, 300}, {900, 400}, {1000, 500}, {400, 500}, {300, 220}
             };
-            for (const auto& pos : nuevasPosicionesHongos) {                // Itera nuevas posiciones
+            for (auto& pos : nuevasPosicionesHongos) {                // Itera nuevas posiciones
                 sf::Sprite hongo(hongoTexture);                             // Crea sprite hongo
                 if (hongoTexture.getSize().x == 0) {                        // Verifica textura válida
                     cout << "No hay Textura" << endl;                       // Mensaje error textura
@@ -702,7 +702,7 @@ void Juego::actualizar(float deltaTime) {                              // Metodo
             std::vector<sf::Vector2f> nuevasPosicionesSemillas = {          // Define nuevas posiciones semillas
                 {100, 300}, {250, 800}, {550, 500}, {350, 50}, {650, 200}, {450, 230}
             };
-            for (const auto& pos : nuevasPosicionesSemillas) {              // Itera nuevas posiciones semillas
+            for ( auto& pos : nuevasPosicionesSemillas) {              // Itera nuevas posiciones semillas
                 sf::Sprite semilla(semillaTexture);                         // Crea sprite semilla
                 if (semillaTexture.getSize().x == 0) {                      // Verifica textura válida
                     cout << "No hay textura" <<endl;                        // Mensaje error textura
@@ -857,7 +857,7 @@ void Juego::actualizar(float deltaTime) {                              // Metodo
         } else {
             // Verificar si quedan NPCs infectados vivos
             bool quedanInfectados = false;                                                        // Bandera NPC infectados vivos
-            for (const auto& personaje : npc) {                                                   // Itera NPCs
+            for ( auto& personaje : npc) {                                                   // Itera NPCs
                 if (Hormigas* hormiga = dynamic_cast<Hormigas*>(personaje.get())) {               // Castea a hormiga
                     if (hormiga->getInfectadas() && hormiga->getVida() > 0) {                    // Si infectada y viva
                         quedanInfectados = true;                                                  // Marca que quedan infectados
@@ -970,10 +970,10 @@ void Juego::renderizar() {
         ventana.draw(textoBoton);                                   // Dibuja texto del botón
     } else if (estado == TUTORIAL) {                               // Si estado es tutorial
         ventana.draw(spriteFondoTutorial);                         // Dibuja fondo tutorial
-        for (const auto& hongo : hongos) {                         // Dibuja todos los hongos
+        for (auto& hongo : hongos) {                         // Dibuja todos los hongos
             ventana.draw(hongo);
         }
-        for (const auto& semilla : semillas) {                     // Dibuja todas las semillas
+        for (auto& semilla : semillas) {                     // Dibuja todas las semillas
             ventana.draw(semilla);
         }
         for (auto& personaje : npc) {                              // Dibuja todos los NPCs vivos
@@ -985,10 +985,10 @@ void Juego::renderizar() {
         jugador.dibujar(ventana);                                  // Dibuja jugador
         dibujarBarraEnergia(ventana, jugador, 100.0f);                // Dibuja barra de energía con max 100
         dibujarBarraSalud(ventana, jugador, 100.0f);               // Dibuja barra de salud jugador con max 100
-        for (const auto& espora : esporas) {                        // Dibuja esporas activas
+        for ( auto& espora : esporas) {                        // Dibuja esporas activas
             ventana.draw(espora);
         }
-        for (const auto& ataque : ataquesLuz) {                    // Dibuja ataques de luz activos
+        for (auto& ataque : ataquesLuz) {                    // Dibuja ataques de luz activos
             ventana.draw(ataque);
         }
     } else if (estado == JUGANDO) {                               // Si estado es jugando
@@ -997,10 +997,10 @@ void Juego::renderizar() {
         } else {
             ventana.draw(spriteFondoTutorial);                     // Dibuja fondo tutorial para otros niveles
         }
-        for (const auto& hongo : hongos) {                         // Dibuja hongos
+        for ( auto& hongo : hongos) {                         // Dibuja hongos
             ventana.draw(hongo);
         }
-        for (const auto& semilla : semillas) {                     // Dibuja semillas
+        for (auto& semilla : semillas) {                     // Dibuja semillas
             ventana.draw(semilla);
         }
         // Dibujar NPCs, diferenciando entre infectados y no infectados
@@ -1019,18 +1019,18 @@ void Juego::renderizar() {
         jugador.dibujar(ventana);                                  // Dibuja jugador
         dibujarBarraEnergia(ventana, jugador, 100.0f);                // Dibuja barra de energía jugador
         dibujarBarraSalud(ventana, jugador, 100.0f);               // Dibuja barra de salud jugador
-        for (const auto& espora : esporas) {                        // Dibuja esporas activas
+        for ( auto& espora : esporas) {                        // Dibuja esporas activas
             ventana.draw(espora);
         }
-        for (const auto& ataque : ataquesLuz) {                    // Dibuja ataques de luz activos
+        for ( auto& ataque : ataquesLuz) {                    // Dibuja ataques de luz activos
             ventana.draw(ataque);
         }
     } else if (estado == JEFEFINAL) {                            // Si estado es jefe final
         ventana.draw(spritefondojefefinal);                      // Dibuja fondo jefe final
-        for (const auto& hongo : hongos) {                       // Dibuja hongos
+        for ( auto& hongo : hongos) {                       // Dibuja hongos
             ventana.draw(hongo);
         }
-        for (const auto& semilla : semillas) {                   // Dibuja semillas
+        for ( auto& semilla : semillas) {                   // Dibuja semillas
             ventana.draw(semilla);
         }
         for (auto& personaje : npc) {                            // Dibuja NPCs vivos
@@ -1045,10 +1045,10 @@ void Juego::renderizar() {
         jugador.dibujar(ventana);                                // Dibuja jugador
         dibujarBarraEnergia(ventana, jugador, 100.0f);              // Dibuja barra de energía jugador
         dibujarBarraSalud(ventana, jugador, 100.0f);             // Dibuja barra de salud jugador
-        for (const auto& espora : esporas) {                      // Dibuja esporas
+        for ( auto& espora : esporas) {                      // Dibuja esporas
             ventana.draw(espora);
         }
-        for (const auto& ataque : ataquesLuz) {                  // Dibuja ataques de luz
+        for ( auto& ataque : ataquesLuz) {                  // Dibuja ataques de luz
             ventana.draw(ataque);
         }
     } else if (estado == GAMEOVER) {                            // Si estado es game over
@@ -1103,7 +1103,7 @@ void Juego::inicializarTutorial() {
     // Generar hongos en posiciones fijas
     hongos.clear();                                            // Limpia vector hongos (redundante)
     std::vector<sf::Vector2f> posicionesHongos = {{1200, 300}, {1000, 600}};  // Define posiciones de hongos
-    for (const auto& pos : posicionesHongos) {                 // Itera posiciones
+    for ( auto& pos : posicionesHongos) {                 // Itera posiciones
         sf::Sprite hongo(hongoTexture);                        // Crea sprite con textura de hongo
         if (hongoTexture.getSize().x == 0) {                   // Si no hay textura válida
             cout << "hongoTexture.getSize().x" << endl;       // Mensaje error textura
@@ -1117,7 +1117,7 @@ void Juego::inicializarTutorial() {
 
     // Generar semillas en el tutorial
     std::vector<sf::Vector2f> posicionesSemillas = {{1300, 400}};  // Define posición de semilla
-    for (const auto& pos : posicionesSemillas) {                   // Itera posiciones
+    for ( auto& pos : posicionesSemillas) {                   // Itera posiciones
         sf::Sprite semilla(semillaTexture);                        // Crea sprite con textura de semilla
         if (semillaTexture.getSize().x == 0) {                     // Si no hay textura válida
             cout << "No hay textura" << endl;                      // Mensaje error textura
@@ -1152,7 +1152,7 @@ bool Juego::PuedeMoverse(float Xnew, float Ynew, Personaje* personajeActual) {
 
     // Verificar colisión con muros del laberinto solo si está en nivel 1 jugando
     if (estado == JUGANDO && nivel == 1) {
-        for (const auto& muro : laberintoMuros) {                     // Recorre todos los muros del laberinto
+        for (auto& muro : laberintoMuros) {                     // Recorre todos los muros del laberinto
             if (bounds.intersects(muro)) {                            // Si el personaje choca con algún muro
                 std::cout << "Colisión detectada con muro en [" << muro.left << ", " << muro.top << ", "
                           << muro.width << ", " << muro.height << "]" << std::endl;  // Mensaje de colisión
@@ -1162,7 +1162,7 @@ bool Juego::PuedeMoverse(float Xnew, float Ynew, Personaje* personajeActual) {
     }
 
     // Verificar colisión con otros personajes NPC
-    for (const auto& personaje : npc) {
+    for ( auto& personaje : npc) {
         if (personaje.get() == personajeActual) continue;             // Ignora el mismo personaje que se mueve
         sf::FloatRect personajeBounds = personaje->getBounds();       // Obtiene límites del otro personaje
         if (bounds.intersects(personajeBounds)) {                     // Si hay intersección (colisión) con otro NPC
@@ -1226,7 +1226,7 @@ void Juego::inicializarJefeFinal() {
     hongos.clear();                                                   // Limpia vector hongos
     posicionesOriginalesHongos.clear();                              // Limpia posiciones originales hongos
     std::vector<sf::Vector2f> posicionesHongos = {{{300, 750}, {480, 600}, {300, 200}, {100, 450}}}; // Define posiciones hongos
-    for (const auto& pos : posicionesHongos) {                       // Itera posiciones hongos
+    for ( auto& pos : posicionesHongos) {                       // Itera posiciones hongos
         sf::Sprite hongo(hongoTexture);                              // Crea sprite hongo
         if (hongoTexture.getSize().x == 0) {                        // Si no hay textura válida
             sf::CircleShape circulo(20.f);                           // Crea círculo rojo
@@ -1246,7 +1246,7 @@ void Juego::inicializarJefeFinal() {
 
     // Generar semillas
     std::vector<sf::Vector2f> posicionesSemillas = {{550, 600}, {720, 300}, {300, 700}}; // Posiciones semillas
-    for (const auto& pos : posicionesSemillas) {                        // Itera posiciones semillas
+    for ( auto& pos : posicionesSemillas) {                        // Itera posiciones semillas
         sf::Sprite semilla(semillaTexture);                             // Crea sprite semilla
         if (semillaTexture.getSize().x == 0) {                         // Si no hay textura válida
             cout << "no hay textura" << endl;                          // Mensaje error textura
@@ -1288,7 +1288,7 @@ void Juego::cargarnivel(int nivel) {
         }
 
         // Crear hormigas no infectadas en el laberinto
-        for (const auto& pos : posicionesHormigasNoInfectadas) {
+        for ( auto& pos : posicionesHormigasNoInfectadas) {
             npc.push_back(std::make_unique<Hormigas>(false));        // Añade hormiga no infectada
             npc.back()->setPosition(pos.x, pos.y);                    // Posiciona hormiga
             npc.back()->setScale(0.5f, 0.5f);                         // Escala hormiga
@@ -1297,7 +1297,7 @@ void Juego::cargarnivel(int nivel) {
         // Generar hongos en el nivel del laberinto
         hongos.clear();                                             // Limpia vector hongos
         std::vector<sf::Vector2f> posicionesHongos = {{1400, 300}, {1450, 450}, {1420, 650}}; // Posiciones hongos ejemplo
-        for (const auto& pos : posicionesHongos) {                  // Itera posiciones hongos
+        for ( auto& pos : posicionesHongos) {                  // Itera posiciones hongos
             sf::Sprite hongo(hongoTexture);                         // Crea sprite hongo
             if (hongoTexture.getSize().x == 0) {                   // Si textura inválida
                 cout << "no hay textura" << std::endl;             // Mensaje error textura
@@ -1309,7 +1309,7 @@ void Juego::cargarnivel(int nivel) {
             // Verificar si la posición del hongo no colisiona con los muros
             sf::FloatRect hongoBounds = hongo.getGlobalBounds();   // Obtiene bounds hongo
             bool colisiona = false;                                 // Variable para colisión
-            for (const auto& muro : laberintoMuros) {              // Recorre muros del laberinto
+            for ( auto& muro : laberintoMuros) {              // Recorre muros del laberinto
                 if (muro.intersects(hongoBounds)) {                // Si colisiona con muro
                     colisiona = true;                               // Marca colisión
                     break;                                          // Sale del loop
@@ -1326,7 +1326,7 @@ void Juego::cargarnivel(int nivel) {
         semillas.clear();                                           // Limpia vector semillas
         posicionesOriginalesSemillas.clear();                       // Limpia posiciones originales semillas
         std::vector<sf::Vector2f> posicionesSemillas = {{1550, 650}, {1450, 300}}; // Posiciones semillas
-        for (const auto& pos : posicionesSemillas) {                // Itera posiciones semillas
+        for ( auto& pos : posicionesSemillas) {                // Itera posiciones semillas
             sf::Sprite semilla(semillaTexture);                     // Crea sprite semilla
             if (semillaTexture.getSize().x == 0) {                 // Si textura inválida
                 cout  <<  "No hay textura"  << std::endl;          // Mensaje error
@@ -1337,7 +1337,7 @@ void Juego::cargarnivel(int nivel) {
             }
             sf::FloatRect semillaBounds = semilla.getGlobalBounds(); // Obtiene bounds semilla
             bool colisiona = false;                                  // Variable colisión
-            for (const auto& muro : laberintoMuros) {               // Recorre muros
+            for ( auto& muro : laberintoMuros) {               // Recorre muros
                 if (muro.intersects(semillaBounds)) {               // Si colisiona con muro
                     colisiona = true;                                // Marca colisión
                     break;                                          // Sale loop
